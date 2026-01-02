@@ -8,6 +8,7 @@
  */
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 
@@ -57,9 +58,6 @@ serve(async (req: Request) => {
       data: { user },
       error: authError,
     } = await (async () => {
-      const { createClient } = await import(
-        "https://esm.sh/@supabase/supabase-js@2.39.0"
-      );
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL")!,
         Deno.env.get("SUPABASE_ANON_KEY")!,
@@ -76,7 +74,44 @@ serve(async (req: Request) => {
     }
 
     const body: GenerateStoryRequest = await req.json();
-    const pageCount = body.pageCount || 6;
+
+    // Validate required fields
+    const { childName, gender, theme, lesson } = body;
+    if (
+      !childName?.trim() ||
+      !gender?.trim() ||
+      !theme?.trim() ||
+      !lesson?.trim()
+    ) {
+      return new Response(
+        JSON.stringify({
+          error:
+            "Missing or empty required fields (childName, gender, theme, lesson)",
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        }
+      );
+    }
+
+    // Validate pageCount
+    let pageCount = 6;
+    if (body.pageCount !== undefined) {
+      const parsed = Number(body.pageCount);
+      if (!Number.isSafeInteger(parsed) || parsed < 1 || parsed > 20) {
+        return new Response(
+          JSON.stringify({
+            error: "pageCount must be an integer between 1 and 20",
+          }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 400,
+          }
+        );
+      }
+      pageCount = parsed;
+    }
 
     if (!ANTHROPIC_API_KEY) {
       console.warn("ANTHROPIC_API_KEY not configured, returning demo story");
@@ -106,19 +141,28 @@ Make the child the hero of their own adventure.
 Include sensory details and magical elements.
 Return ONLY the JSON object, no other text.`;
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-3-sonnet-20240229",
-        max_tokens: 3000,
-        messages: [{ role: "user", content: prompt }],
-      }),
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+    let response: Response;
+    try {
+      response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "claude-3-5-sonnet-20241022",
+          max_tokens: 3000,
+          messages: [{ role: "user", content: prompt }],
+        }),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     const data = await response.json();
 

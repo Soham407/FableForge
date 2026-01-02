@@ -11,6 +11,7 @@
  */
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 
 const FAL_API_KEY = Deno.env.get("FAL_API_KEY");
 
@@ -76,9 +77,6 @@ serve(async (req: Request) => {
       data: { user },
       error: authError,
     } = await (async () => {
-      const { createClient } = await import(
-        "https://esm.sh/@supabase/supabase-js@2.39.0"
-      );
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL")!,
         Deno.env.get("SUPABASE_ANON_KEY")!,
@@ -95,12 +93,71 @@ serve(async (req: Request) => {
     }
 
     const body: GenerateImageRequest = await req.json();
+
+    // Input Validation: Prompt
+    if (!body.prompt || typeof body.prompt !== "string") {
+      return new Response(
+        JSON.stringify({ error: "Missing or invalid prompt" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        }
+      );
+    }
+    const sanitizedPrompt = body.prompt.trim().slice(0, 500);
+
+    // Input Validation: Quality & Style
     const quality = body.quality || "preview";
     const style = body.style || "whimsical";
-    const preset = QUALITY_PRESETS[quality];
-    const stylePrompt = STYLE_PROMPTS[style];
+    if (!QUALITY_PRESETS[quality as keyof typeof QUALITY_PRESETS]) {
+      return new Response(JSON.stringify({ error: "Invalid quality preset" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+    if (!STYLE_PROMPTS[style as keyof typeof STYLE_PROMPTS]) {
+      return new Response(JSON.stringify({ error: "Invalid style preset" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
 
-    const fullPrompt = `${body.prompt}, ${stylePrompt}, 8k resolution`;
+    // SSRF Protection: identityImageUrl
+    if (body.identityImageUrl) {
+      try {
+        const url = new URL(body.identityImageUrl);
+        if (url.protocol !== "https:") {
+          throw new Error("Only HTTPS identity image URLs are allowed");
+        }
+        const PRIVATE_IP_RANGES = [
+          /^127\./,
+          /^10\./,
+          /^172\.(1[6-9]|2[0-9]|3[0-1])\./,
+          /^192\.168\./,
+          /^169\.254\./,
+          /^::1$/,
+          /^fc00:/,
+          /^fe80:/,
+        ];
+        if (
+          url.hostname === "localhost" ||
+          PRIVATE_IP_RANGES.some((r) => r.test(url.hostname))
+        ) {
+          throw new Error(
+            "Private or loopback identity image URLs are forbidden"
+          );
+        }
+      } catch (err) {
+        return new Response(JSON.stringify({ error: (err as Error).message }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
+      }
+    }
+
+    const preset = QUALITY_PRESETS[quality as keyof typeof QUALITY_PRESETS];
+    const stylePrompt = STYLE_PROMPTS[style as keyof typeof STYLE_PROMPTS];
+    const fullPrompt = `${sanitizedPrompt}, ${stylePrompt}, 8k resolution`;
     const negativePrompt =
       "blurry, bad anatomy, bad hands, missing fingers, extra fingers, disfigured, deformed, ugly, duplicate";
 
@@ -112,8 +169,9 @@ serve(async (req: Request) => {
       });
     }
 
+    const userMarker = user.id.substring(0, 8); // Truncated ID for privacy
     console.log(
-      `🎨 Generating ${quality} image for User ${user.id} with ${preset.model}...`
+      `🎨 Generating ${quality} image for User [${userMarker}...] with ${preset.model}...`
     );
 
     let result: GeneratedImage;
@@ -143,10 +201,15 @@ serve(async (req: Request) => {
     });
   } catch (error) {
     console.error("Image generation failed:", error);
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+    return new Response(
+      JSON.stringify({
+        error: "Image generation failed. Please try again later.",
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      }
+    );
   }
 });
 
