@@ -198,7 +198,7 @@ Return ONLY the JSON object, no other text.`;
     });
   } catch (error) {
     console.error("Story generation failed:", error);
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

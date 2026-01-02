@@ -129,6 +129,7 @@ serve(async (req: Request) => {
         if (url.protocol !== "https:") {
           throw new Error("Only HTTPS identity image URLs are allowed");
         }
+
         const PRIVATE_IP_RANGES = [
           /^127\./,
           /^10\./,
@@ -139,12 +140,51 @@ serve(async (req: Request) => {
           /^fc00:/,
           /^fe80:/,
         ];
+
+        // 1. Text-based rejection
         if (
           url.hostname === "localhost" ||
           PRIVATE_IP_RANGES.some((r) => r.test(url.hostname))
         ) {
           throw new Error(
             "Private or loopback identity image URLs are forbidden"
+          );
+        }
+
+        // 2. DNS-based rejection
+        const isSafe = await (async () => {
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
+
+            const resolveA = Deno.resolveDns(url.hostname, "A").catch(() => []);
+            const resolveAAAA = Deno.resolveDns(url.hostname, "AAAA").catch(
+              () => []
+            );
+
+            const results = await Promise.race([
+              Promise.all([resolveA, resolveAAAA]),
+              new Promise<never>((_, reject) => {
+                controller.signal.addEventListener("abort", () =>
+                  reject(new Error("DNS timeout"))
+                );
+              }),
+            ]);
+
+            clearTimeout(timeoutId);
+            const allIps = [...results[0], ...results[1]];
+            return !allIps.some((ip) =>
+              PRIVATE_IP_RANGES.some((r) => r.test(ip))
+            );
+          } catch (err) {
+            console.error(`DNS check failed for ${url.hostname}:`, err);
+            return false; // Fail closed
+          }
+        })();
+
+        if (!isSafe) {
+          throw new Error(
+            "Identity image URL resolved to a restricted IP address"
           );
         }
       } catch (err) {
