@@ -12,19 +12,19 @@ const Footer = () => {
       { name: "Examples", href: "#showcase" },
     ],
     company: [
-      { name: "About Us", path: "#" },
-      { name: "Blog", path: "#" },
-      { name: "Careers", path: "#" },
+      { name: "About Us", href: "#" },
+      { name: "Blog", href: "#" },
+      { name: "Careers", href: "#" },
     ],
     support: [
-      { name: "Help Center", path: "#" },
-      { name: "Contact", path: "#" },
-      { name: "Shipping", path: "#" },
+      { name: "Help Center", href: "#" },
+      { name: "Contact", href: "#" },
+      { name: "Shipping", href: "#" },
     ],
     legal: [
-      { name: "Privacy Policy", path: "#" },
-      { name: "Terms of Service", path: "#" },
-      { name: "Refund Policy", path: "#" },
+      { name: "Privacy Policy", href: "#" },
+      { name: "Terms of Service", href: "#" },
+      { name: "Refund Policy", href: "#" },
     ],
   };
 
@@ -73,7 +73,7 @@ const Footer = () => {
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
                   <Link
-                    to={link.path}
+                    to={link.href}
                     className="text-emerald-200 hover:text-white text-sm transition-colors"
                   >
                     {link.name}
@@ -90,7 +90,7 @@ const Footer = () => {
               {footerLinks.support.map((link) => (
                 <li key={link.name}>
                   <Link
-                    to={link.path}
+                    to={link.href}
                     className="text-emerald-200 hover:text-white text-sm transition-colors"
                   >
                     {link.name}
@@ -107,7 +107,7 @@ const Footer = () => {
               {footerLinks.legal.map((link) => (
                 <li key={link.name}>
                   <Link
-                    to={link.path}
+                    to={link.href}
                     className="text-emerald-200 hover:text-white text-sm transition-colors"
                   >
                     {link.name}

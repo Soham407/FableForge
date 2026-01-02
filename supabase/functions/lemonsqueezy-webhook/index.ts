@@ -13,7 +13,10 @@
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-import { createHmac } from "https://deno.land/std@0.177.0/node/crypto.ts";
+import {
+  createHmac,
+  timingSafeEqual,
+} from "https://deno.land/std@0.177.0/node/crypto.ts";
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -26,10 +29,23 @@ const WEBHOOK_SECRET = Deno.env.get("LEMONSQUEEZY_WEBHOOK_SECRET")!;
  * Verify Lemon Squeezy webhook signature
  */
 function verifySignature(payload: string, signature: string): boolean {
-  const hmac = createHmac("sha256", WEBHOOK_SECRET);
-  hmac.update(payload);
-  const digest = hmac.digest("hex");
-  return digest === signature;
+  try {
+    const hmac = createHmac("sha256", WEBHOOK_SECRET);
+    hmac.update(payload);
+    const digest = hmac.digest("hex");
+
+    const digestBuffer = Buffer.from(digest, "hex");
+    const signatureBuffer = Buffer.from(signature, "hex");
+
+    if (digestBuffer.length !== signatureBuffer.length) {
+      return false;
+    }
+
+    return timingSafeEqual(digestBuffer, signatureBuffer);
+  } catch (err) {
+    console.error("Signature verification error:", err);
+    return false;
+  }
 }
 
 serve(async (req: Request) => {
@@ -74,6 +90,10 @@ serve(async (req: Request) => {
 
           if (orderError) {
             console.error("Failed to create order:", orderError);
+            return new Response(
+              JSON.stringify({ error: "Failed to create order" }),
+              { status: 500 }
+            );
           }
 
           // Update book status
@@ -84,6 +104,10 @@ serve(async (req: Request) => {
 
           if (bookError) {
             console.error("Failed to update book:", bookError);
+            return new Response(
+              JSON.stringify({ error: "Failed to update book status" }),
+              { status: 500 }
+            );
           }
 
           // TODO: Trigger PDF generation and print fulfillment

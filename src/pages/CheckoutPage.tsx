@@ -8,7 +8,7 @@ import {
   Sparkles,
   MapPin,
 } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import Button from "../components/ui/Button";
 import GoldFoil from "../components/ui/GoldFoil";
 import { AppRoutes } from "../types";
@@ -22,7 +22,6 @@ import {
 import { supabase } from "../lib/supabase";
 
 const CheckoutPage = () => {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const bookId = searchParams.get("bookId");
@@ -113,14 +112,18 @@ const CheckoutPage = () => {
         successUrl: `${window.location.origin}/#${AppRoutes.ORDER_SUCCESS}?book_id=${effectiveBookId}`,
       });
 
-      // Redirect to Lemon Squeezy checkout or success page (demo mode)
-      if (checkout.checkoutUrl) {
+      // Redirect to Lemon Squeezy checkout or show error
+      if (checkout.error) {
+        alert(
+          checkout.message || "Failed to create checkout. Please try again."
+        );
+        setLoading(false);
+      } else if (checkout.checkoutUrl) {
         window.location.href = checkout.checkoutUrl;
-      } else {
-        navigate(AppRoutes.ORDER_SUCCESS);
       }
     } catch (error) {
       console.error("Checkout error:", error);
+      alert("An unexpected error occurred. Please try again.");
       setLoading(false);
     }
   };

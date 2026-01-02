@@ -8,8 +8,6 @@
 
 import { supabase } from "./supabase";
 
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
-
 export interface MemoryEmbedding {
   id: string;
   userId: string;
@@ -33,40 +31,39 @@ export interface SimilarMemory {
 
 /**
  * Generate text embedding
- * Uses OpenAI's text-embedding-3-small when available, falls back to semantic mock
+ * Calls the Supabase Edge Function 'embed-text' to generate OpenAI embeddings safely
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
-  // Try OpenAI embeddings first (recommended for production)
-  if (OPENAI_API_KEY) {
-    try {
-      const response = await fetch("https://api.openai.com/v1/embeddings", {
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+
+    if (supabaseUrl && session?.access_token) {
+      const response = await fetch(`${supabaseUrl}/functions/v1/embed-text`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${OPENAI_API_KEY}`,
           "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({
-          model: "text-embedding-3-small",
-          input: text,
-        }),
+        body: JSON.stringify({ input: text }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        if (data.data?.[0]?.embedding) {
-          console.log("📦 Generated embedding using OpenAI");
-          return data.data[0].embedding;
+        if (data.embedding) {
+          console.log("📦 Generated embedding using server-side OpenAI");
+          return data.embedding;
         }
       }
-    } catch (error) {
-      console.warn("OpenAI embedding failed, using semantic mock:", error);
     }
+  } catch (error) {
+    console.warn("Server-side embedding failed, using semantic mock:", error);
   }
 
   // Fallback to improved semantic mock embedding
-  console.warn(
-    "Using semantic mock embedding (set VITE_OPENAI_API_KEY for production)"
-  );
+  console.warn("Using semantic mock embedding as fallback");
   return generateSemanticMockEmbedding(text);
 }
 
@@ -253,18 +250,12 @@ export async function findSimilarMemories(
   try {
     const queryEmbedding = await generateEmbedding(query);
 
-    // Query using pgvector similarity search
-    // Note: This requires the pgvector extension in Supabase
-    let queryBuilder = supabase.rpc("match_memories", {
+    const queryBuilder = supabase.rpc("match_memories", {
       query_embedding: queryEmbedding,
       match_threshold: minSimilarity,
       match_count: limit,
       user_id_filter: userId,
     });
-
-    if (yearFilter) {
-      queryBuilder = queryBuilder.eq("year", yearFilter);
-    }
 
     const { data, error } = await queryBuilder;
 
@@ -276,6 +267,10 @@ export async function findSimilarMemories(
       return getDemoSimilarMemories();
     }
 
+    // Apply filtering client-side if needed (RPC results cannot be filtered with .eq())
+    if (yearFilter && data) {
+      return data.filter((m: any) => m.year === yearFilter);
+    }
     return data || [];
   } catch (error) {
     console.error("Failed to find similar memories:", error);

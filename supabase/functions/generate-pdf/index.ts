@@ -12,7 +12,12 @@
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
+import {
+  PDFDocument,
+  rgb,
+  StandardFonts,
+  degrees,
+} from "https://esm.sh/pdf-lib@1.17.1";
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -312,7 +317,7 @@ async function generateFoilMaskPDF(
     size: 24,
     font: boldFont,
     color: black,
-    rotate: { angle: 90, type: 0 },
+    rotate: degrees(90),
   });
 
   return pdfDoc.save();

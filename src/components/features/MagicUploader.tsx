@@ -30,26 +30,63 @@ const MagicUploader = ({ onUploadStart }: MagicUploaderProps) => {
 
   const processFile = useCallback(
     (file: File) => {
-      if (file && file.type.startsWith("image/")) {
-        setIsProcessing(true);
-        onUploadStart?.();
+      // 1. Explicit allowed MIME types check
+      const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+      if (!file || !ALLOWED_TYPES.includes(file.type)) {
+        alert("Please upload a valid image file (JPG, PNG, or WebP).");
+        return;
+      }
 
-        // Read file and simulate AI processing
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          // Store in session storage for the preview page
-          sessionStorage.setItem("uploadedImage", e.target?.result as string);
+      // 2. Enforce max file size (5MB)
+      const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+      if (file.size > MAX_SIZE) {
+        alert("File is too large. Please upload an image smaller than 5MB.");
+        return;
+      }
+
+      setIsProcessing(true);
+      onUploadStart?.();
+
+      const reader = new FileReader();
+
+      // 3. Handle successful read
+      reader.onload = (e) => {
+        try {
+          const result = e.target?.result as string;
+          if (!result) throw new Error("Failed to read file content");
+
+          // 4. Wrap sessionStorage in try/catch with fallback
+          sessionStorage.setItem("uploadedImage", result);
           sessionStorage.setItem("uploadedFileName", file.name);
 
-          // Simulate "magical" processing time (Phase 1: Flux.1 [schnell] for speed)
+          // Simulate "magical" processing time
           const PROCESSING_DURATION = 2500;
           setTimeout(() => {
             setIsProcessing(false);
             navigate(AppRoutes.PREVIEW);
-          }, PROCESSING_DURATION); // 2.5s for the "magic" effect
-        };
-        reader.readAsDataURL(file);
-      }
+          }, PROCESSING_DURATION);
+        } catch (error) {
+          console.error("Storage error:", error);
+          alert(
+            "Failed to process image. You can still continue, but preview may be limited."
+          );
+          setIsProcessing(false);
+        }
+      };
+
+      // 5. Wire up FileReader errors to clear processing state
+      reader.onerror = () => {
+        console.error("FileReader error");
+        alert("Error reading file. Please try again.");
+        setIsProcessing(false);
+      };
+
+      reader.onabort = () => {
+        console.warn("FileReader abort");
+        setIsProcessing(false);
+      };
+
+      reader.readAsDataURL(file);
     },
     [navigate, onUploadStart]
   );

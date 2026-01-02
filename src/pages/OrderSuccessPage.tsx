@@ -178,6 +178,15 @@ const OrderSuccessPage = () => {
   ];
 
   /**
+   * Escape HTML to prevent XSS
+   */
+  const escapeHtml = (text: string): string => {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  };
+
+  /**
    * Generate styled HTML document for the storybook
    */
   const generateStorybookHTML = (
@@ -291,7 +300,7 @@ const OrderSuccessPage = () => {
                 }" crossorigin="anonymous" />`
               : ""
           }
-          <p>${page.text}</p>
+          <p>${escapeHtml(page.text)}</p>
         </div>
         <div class="page-number">${index + 1}</div>
       </div>
@@ -299,20 +308,23 @@ const OrderSuccessPage = () => {
       )
       .join("");
 
+    const escapedTitle = escapeHtml(title);
+    const escapedChildName = escapeHtml(childName);
+
     return `
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>${title}</title>
+        <title>${escapedTitle}</title>
         <style>${pageStyles}</style>
       </head>
       <body>
         <div class="cover page">
           <div class="ornament">✦ ✦ ✦</div>
-          <h1>${title}</h1>
-          <div class="subtitle">A Magical Story for ${childName}</div>
+          <h1>${escapedTitle}</h1>
+          <div class="subtitle">A Magical Story for ${escapedChildName}</div>
           <div class="ornament">✦ ✦ ✦</div>
         </div>
         

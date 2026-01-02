@@ -44,6 +44,7 @@ export async function generatePrintPDF(
   config: StoryConfig,
   pages: StoryPage[],
   tier: "standard" | "premium" | "heirloom",
+  accessToken: string,
   bookId?: string
 ): Promise<PDFGenerationResult> {
   console.log(
@@ -73,14 +74,13 @@ export async function generatePrintPDF(
   try {
     // Try to call the Edge Function for real PDF generation
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-    if (supabaseUrl && supabaseKey) {
+    if (supabaseUrl && accessToken) {
       const response = await fetch(`${supabaseUrl}/functions/v1/generate-pdf`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${supabaseKey}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(pdfData),
       });

@@ -63,28 +63,50 @@ const FlipbookEditor = () => {
                 data.config as StoryConfig
               );
 
-              // Generate images for each page
+              // Generate images for each page with robust error handling
               const pagesWithImages: AIPage[] = [];
               for (const page of script.pages) {
-                const imageResult = await generateStoryImage(page.imagePrompt);
-                pagesWithImages.push({
-                  text: page.text,
-                  imagePrompt: page.imagePrompt,
-                  imageUrl: imageResult.imageUrl,
-                });
+                try {
+                  const imageResult = await generateStoryImage(
+                    page.imagePrompt
+                  );
+                  pagesWithImages.push({
+                    text: page.text,
+                    imagePrompt: page.imagePrompt,
+                    imageUrl: imageResult.imageUrl,
+                  });
+                } catch (imgErr) {
+                  console.error("Failed to generate image for page:", imgErr);
+                  // Push page with null imageUrl so individual page failure doesn't stop the loop
+                  pagesWithImages.push({
+                    text: page.text,
+                    imagePrompt: page.imagePrompt,
+                    imageUrl: undefined,
+                  });
+                }
+                // Show progress in UI
+                setAiPages([...pagesWithImages]);
               }
 
               setAiPages(pagesWithImages);
               setBookStatus("ready");
 
               // Update database with generated pages and mark as ready
-              await supabase
+              const { error: updateError } = await supabase
                 .from("books")
                 .update({
                   status: "ready",
                   pages: pagesWithImages,
                 })
                 .eq("id", bookId);
+
+              if (updateError) {
+                console.error(
+                  "Failed to update book status in DB:",
+                  updateError
+                );
+                // We don't throw here to allow the user to see the generated pages anyway
+              }
             } else if (data.pages) {
               setAiPages(data.pages);
             }
