@@ -7,12 +7,7 @@
  * 2. cover_foil_mask.pdf - Vector black for gold foil stamping (Heirloom only)
  */
 
-import type { StoryConfig } from "../types";
-
-interface StoryPage {
-  text: string;
-  imageUrl: string;
-}
+import type { StoryConfig, StoryPage } from "../types";
 
 interface PDFGenerationResult {
   interiorUrl: string;
@@ -66,8 +61,10 @@ export async function generatePrintPDF(
     childName: config.childName,
     tier,
     pages: pages.map((p) => ({
+      id: p.id,
       text: p.text,
       imageUrl: p.imageUrl,
+      pageNumber: p.pageNumber,
     })),
   };
 
@@ -101,8 +98,9 @@ export async function generatePrintPDF(
     const simData = {
       title: pdfData.title,
       author: "Our Story Books",
-      pages: pdfData.pages.map((p, i) => ({
-        pageNumber: i + 1,
+      pages: pdfData.pages.map((p) => ({
+        id: p.id,
+        pageNumber: p.pageNumber,
         text: p.text,
         imageUrl: p.imageUrl,
       })),
@@ -184,7 +182,7 @@ export function getCoverSpecs(pageCount: number): {
 interface SimPDFData {
   title: string;
   author: string;
-  pages: Array<{ pageNumber: number; text: string; imageUrl: string }>;
+  pages: StoryPage[];
   specs: BookSpecs;
   tier: string;
 }

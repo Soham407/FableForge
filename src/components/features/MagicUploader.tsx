@@ -117,19 +117,31 @@ const MagicUploader = ({ onUploadStart }: MagicUploaderProps) => {
       <motion.div
         layout
         onClick={() => fileInputRef.current?.click()}
+        onKeyDown={(e) => {
+          if (!isProcessing && (e.key === "Enter" || e.key === " ")) {
+            e.preventDefault();
+            fileInputRef.current?.click();
+          }
+        }}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
+        tabIndex={isProcessing ? -1 : 0}
+        role="button"
+        aria-label="Upload a photo to see the magic"
+        aria-disabled={isProcessing}
         className={`
           relative cursor-pointer group rounded-3xl border-2 border-dashed 
-          p-8 transition-all duration-500 ease-out
+          p-8 transition-all duration-500 ease-out focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2
           ${
             isDragging
               ? "border-amber-500 bg-amber-50/50 scale-105"
               : "border-stone-300 hover:border-amber-400 hover:bg-white bg-white/60"
           }
           ${
-            isProcessing ? "pointer-events-none border-none bg-emerald-950" : ""
+            isProcessing
+              ? "opacity-50 cursor-not-allowed border-none bg-emerald-950"
+              : ""
           }
         `}
       >

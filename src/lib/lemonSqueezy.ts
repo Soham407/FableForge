@@ -9,11 +9,10 @@
  * - Fraud protection
  */
 
-const LEMON_SQUEEZY_API_KEY = import.meta.env.VITE_LEMONSQUEEZY_API_KEY;
+// Note: API Key is no longer used client-side for security.
+// It is handled by the lemonsqueezy-service Edge Function.
 const LEMON_SQUEEZY_STORE_ID = import.meta.env.VITE_LEMONSQUEEZY_STORE_ID;
-
-// API Base URL
-const API_BASE = "https://api.lemonsqueezy.com/v1";
+import { supabase } from "./supabase";
 
 /**
  * Product Variant IDs from your Lemon Squeezy dashboard
@@ -92,8 +91,8 @@ export async function createCheckout(
 ): Promise<CheckoutResponse> {
   const variantId = PRODUCT_VARIANTS[params.tierId];
 
-  // Demo mode: simulate checkout when API key not configured
-  if (!LEMON_SQUEEZY_API_KEY || variantId.startsWith("demo_")) {
+  // Demo mode: simulate checkout when variant is demo
+  if (variantId.startsWith("demo_")) {
     console.log("🧪 Demo Mode: Simulating Lemon Squeezy checkout");
     console.log(`   Product: ${PRICING_TIERS[params.tierId].name}`);
     console.log(`   Price: ${formatPrice(PRICING_TIERS[params.tierId].price)}`);
@@ -108,134 +107,83 @@ export async function createCheckout(
   }
 
   try {
-    const response = await fetch(`${API_BASE}/checkouts`, {
-      method: "POST",
-      headers: {
-        Accept: "application/vnd.api+json",
-        "Content-Type": "application/vnd.api+json",
-        Authorization: `Bearer ${LEMON_SQUEEZY_API_KEY}`,
-      },
-      body: JSON.stringify({
-        data: {
-          type: "checkouts",
-          attributes: {
-            checkout_data: {
-              email: params.customerEmail,
-              name: params.customerName || "",
-              custom: {
-                book_id: params.bookId,
-                tier_id: params.tierId,
-              },
-            },
-            checkout_options: {
-              embed: false,
-              media: true,
-              button_color: "#059669", // Emerald-600 to match brand
-            },
-            product_options: {
-              redirect_url: params.successUrl,
-              receipt_link_url: params.successUrl,
-            },
-          },
-          relationships: {
-            store: {
-              data: {
-                type: "stores",
-                id: LEMON_SQUEEZY_STORE_ID,
-              },
-            },
-            variant: {
-              data: {
-                type: "variants",
-                id: variantId,
-              },
-            },
-          },
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) throw new Error("Authentication required");
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lemonsqueezy-service`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
         },
-      }),
-    });
+        body: JSON.stringify({
+          action: "create-checkout",
+          params: {
+            ...params,
+            variantId,
+          },
+        }),
+      }
+    );
 
     if (!response.ok) {
       const error = await response.json();
-      console.error("Lemon Squeezy API error:", error);
-      throw new Error("Failed to create checkout");
+      console.error("Lemon Squeezy service error:", error);
+      throw new Error(error.error || "Failed to create checkout");
     }
 
-    const data = await response.json();
-
+    const result = await response.json();
     return {
-      checkoutUrl: data.data.attributes.url,
-      orderId: data.data.id,
+      checkoutUrl: result.checkoutUrl,
+      orderId: result.orderId,
     };
   } catch (error) {
     console.error("Checkout creation failed:", error);
-
-    // Stop returning a success fallback, return a structured error result
     return {
       checkoutUrl: "",
       error: true,
-      message: "Checkout creation failed. Please try again later.",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Checkout creation failed. Please try again later.",
     };
   }
 }
 
-/**
- * Verify a webhook signature from Lemon Squeezy
- * Use this in your Edge Function to validate incoming webhooks
- */
-export async function verifyWebhookSignature(
-  payload: string,
-  signature: string,
-  secret: string
-): Promise<boolean> {
-  try {
-    const encoder = new TextEncoder();
-    const key = await crypto.subtle.importKey(
-      "raw",
-      encoder.encode(secret),
-      { name: "HMAC", hash: "SHA-256" },
-      false,
-      ["sign"]
-    );
+// verifyWebhookSignature removed as it is dead client-side code.
+// Webhook verification MUST occur server-side only.
 
-    const signatureBytes = await crypto.subtle.sign(
-      "HMAC",
-      key,
-      encoder.encode(payload)
-    );
-
-    const hexSignature = Array.from(new Uint8Array(signatureBytes))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-
-    // Timing-safe comparison would be better, but subtle.verify for HMAC
-    // isn't as direct as just comparing hex strings.
-    // In Edge functions, timing attacks are less of a concern than in traditional servers,
-    // but for best practice we should use a utility if available.
-    // For now, implement the basic comparison.
-    return hexSignature === signature;
-  } catch (err) {
-    console.error("Signature verification error:", err);
-    return false;
-  }
-}
-
-/**
- * Get order details from Lemon Squeezy
- */
 export async function getOrder(orderId: string): Promise<unknown> {
-  if (!LEMON_SQUEEZY_API_KEY) {
+  // Demo mode: simulate fallback
+  if (PRODUCT_VARIANTS.standard.startsWith("demo_")) {
     console.log("🧪 Demo Mode: Cannot fetch order");
     return null;
   }
 
   try {
-    const response = await fetch(`${API_BASE}/orders/${orderId}`, {
-      headers: {
-        Accept: "application/vnd.api+json",
-        Authorization: `Bearer ${LEMON_SQUEEZY_API_KEY}`,
-      },
-    });
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) throw new Error("Authentication required");
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lemonsqueezy-service`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          action: "get-order",
+          params: { orderId },
+        }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`Failed to fetch order: ${response.status}`);
@@ -258,13 +206,8 @@ export function formatPrice(cents: number): string {
   }).format(cents / 100);
 }
 
-/**
- * Check if Lemon Squeezy is properly configured
- */
 export function isConfigured(): boolean {
   return !!(
-    LEMON_SQUEEZY_API_KEY &&
-    LEMON_SQUEEZY_STORE_ID &&
-    !PRODUCT_VARIANTS.standard.startsWith("demo_")
+    LEMON_SQUEEZY_STORE_ID && !PRODUCT_VARIANTS.standard.startsWith("demo_")
   );
 }

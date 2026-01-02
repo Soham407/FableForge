@@ -60,6 +60,40 @@ serve(async (req: Request) => {
   }
 
   try {
+    // 1. Authenticate user
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "No authorization header" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 401,
+        }
+      );
+    }
+
+    const {
+      data: { user },
+      error: authError,
+    } = await (async () => {
+      const { createClient } = await import(
+        "https://esm.sh/@supabase/supabase-js@2.39.0"
+      );
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_ANON_KEY")!,
+        { global: { headers: { Authorization: authHeader } } }
+      );
+      return await supabase.auth.getUser();
+    })();
+
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+      });
+    }
+
     const body: GenerateImageRequest = await req.json();
     const quality = body.quality || "preview";
     const style = body.style || "whimsical";
@@ -71,14 +105,16 @@ serve(async (req: Request) => {
       "blurry, bad anatomy, bad hands, missing fingers, extra fingers, disfigured, deformed, ugly, duplicate";
 
     if (!FAL_API_KEY) {
-      // Return placeholder when API key not configured
+      console.warn("FAL_API_KEY not configured, returning placeholder");
       return new Response(JSON.stringify(getPlaceholderImage(body.prompt)), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
     }
 
-    console.log(`🎨 Generating ${quality} image with ${preset.model}...`);
+    console.log(
+      `🎨 Generating ${quality} image for User ${user.id} with ${preset.model}...`
+    );
 
     let result: GeneratedImage;
 

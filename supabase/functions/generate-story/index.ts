@@ -41,11 +41,45 @@ serve(async (req: Request) => {
   }
 
   try {
+    // 1. Authenticate user
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "No authorization header" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 401,
+        }
+      );
+    }
+
+    const {
+      data: { user },
+      error: authError,
+    } = await (async () => {
+      const { createClient } = await import(
+        "https://esm.sh/@supabase/supabase-js@2.39.0"
+      );
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_ANON_KEY")!,
+        { global: { headers: { Authorization: authHeader } } }
+      );
+      return await supabase.auth.getUser();
+    })();
+
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+      });
+    }
+
     const body: GenerateStoryRequest = await req.json();
     const pageCount = body.pageCount || 6;
 
     if (!ANTHROPIC_API_KEY) {
-      // Return demo story when API key not configured
+      console.warn("ANTHROPIC_API_KEY not configured, returning demo story");
       return new Response(
         JSON.stringify(generateDemoStory(body.childName, body.theme)),
         {
@@ -55,7 +89,9 @@ serve(async (req: Request) => {
       );
     }
 
-    console.log(`📖 Generating story for ${body.childName}...`);
+    console.log(
+      `📖 Generating story for ${body.childName} (User: ${user.id})...`
+    );
 
     const prompt = `Write a children's story for a child named ${body.childName} (${body.gender}). 
 Theme: ${body.theme}. 

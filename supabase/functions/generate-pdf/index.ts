@@ -158,14 +158,49 @@ async function generateInteriorPDF(
     color: rgb(0.3, 0.3, 0.3),
   });
 
+  const PRIVATE_IP_RANGES = [
+    /^127\./,
+    /^10\./,
+    /^172\.(1[6-9]|2[0-9]|3[0-1])\./,
+    /^192\.168\./,
+    /^169\.254\./,
+    /^::1$/,
+    /^fc00:/,
+    /^fe80:/,
+  ];
+
+  function isPrivate(hostname: string): boolean {
+    return (
+      hostname === "localhost" ||
+      PRIVATE_IP_RANGES.some((range) => range.test(hostname))
+    );
+  }
+
+  function validateImageUrl(urlStr: string): boolean {
+    try {
+      const url = new URL(urlStr);
+      if (url.protocol !== "http:" && url.protocol !== "https:") return false;
+      if (isPrivate(url.hostname)) return false;
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   // Story pages
   for (let i = 0; i < data.pages.length; i++) {
     const page = data.pages[i];
     const pdfPage = pdfDoc.addPage([BOOK_SPECS.width, BOOK_SPECS.height]);
 
-    // Try to embed image
+    // Try to embed image with SSRF protection
     try {
+      if (!validateImageUrl(page.imageUrl)) {
+        throw new Error(`Invalid or unsafe image URL: ${page.imageUrl}`);
+      }
+
       const imageResponse = await fetch(page.imageUrl);
+      if (!imageResponse.ok)
+        throw new Error(`Fetch failed: ${imageResponse.status}`);
       const imageBytes = await imageResponse.arrayBuffer();
 
       let image;
