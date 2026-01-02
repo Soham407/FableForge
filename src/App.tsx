@@ -16,6 +16,7 @@ import OrderSuccessPage from "./pages/OrderSuccessPage";
 import MemoryJar from "./pages/MemoryJar";
 import PhotographerPortal from "./pages/PhotographerPortal";
 import NotFound from "./pages/NotFound";
+import ProfilePage from "./pages/ProfilePage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { AppRoutes } from "./types";
 import { useAuth } from "./context/AuthContext";
@@ -106,12 +107,7 @@ function App() {
           element={
             <ProtectedRoute>
               <Layout>
-                <div className="container mx-auto px-6 py-20 text-center">
-                  <h1 className="text-3xl font-serif text-emerald-950 mb-4">
-                    My Profile
-                  </h1>
-                  <p className="text-stone-500">Logged in as: {user?.email}</p>
-                </div>
+                <ProfilePage />
               </Layout>
             </ProtectedRoute>
           }

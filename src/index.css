@@ -134,11 +134,490 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 ::selection {
   background-color: var(--color-amber-200);
   color: var(--color-emerald-950);
+}
+
+/* ================================
+   Dark Mode Styles
+   ================================ */
+
+html.dark body {
+  background-color: #0f0f0f;
+  color: #e7e5e4;
+}
+
+html.dark ::selection {
+  background-color: var(--color-amber-600);
+  color: #0f0f0f;
+}
+
+/* Dark mode for common background elements */
+html.dark .bg-white {
+  background-color: #1a1a1a !important;
+}
+
+html.dark .bg-stone-50 {
+  background-color: #0f0f0f !important;
+}
+
+html.dark .bg-stone-100 {
+  background-color: #1a1a1a !important;
+}
+
+html.dark .bg-stone-200 {
+  background-color: #292524 !important;
+}
+
+html.dark .bg-emerald-100 {
+  background-color: #064e3b !important;
+}
+
+html.dark .bg-emerald-950 {
+  background-color: #022c22 !important;
+}
+
+html.dark .bg-rose-50 {
+  background-color: #2a1a1a !important;
+}
+
+html.dark .bg-rose-100 {
+  background-color: #3a2020 !important;
+}
+
+html.dark .bg-amber-100 {
+  background-color: #3d2e0a !important;
+}
+
+/* Dark mode text colors - PRIMARY FIX */
+html.dark .text-emerald-950 {
+  color: #e7e5e4 !important;
+}
+
+html.dark .text-emerald-950\/80 {
+  color: rgba(231, 229, 228, 0.8) !important;
+}
+
+html.dark .text-emerald-900 {
+  color: #d1fae5 !important;
+}
+
+html.dark .text-stone-500 {
+  color: #a8a29e !important;
+}
+
+html.dark .text-stone-400 {
+  color: #b8b4ae !important;
+}
+
+html.dark .text-stone-600 {
+  color: #a8a29e !important;
+}
+
+html.dark .text-stone-700 {
+  color: #d6d3d1 !important;
+}
+
+html.dark .text-rose-950 {
+  color: #fecaca !important;
+}
+
+html.dark .text-rose-900\/60 {
+  color: rgba(254, 202, 202, 0.8) !important;
+}
+
+html.dark .text-rose-600\/70 {
+  color: rgba(251, 113, 133, 0.9) !important;
+}
+
+html.dark .text-amber-900 {
+  color: #fde68a !important;
+}
+
+/* Navbar specific fixes */
+html.dark nav {
+  background-color: rgba(15, 15, 15, 0.95) !important;
+  backdrop-filter: blur(12px);
+}
+
+html.dark nav a {
+  color: #d6d3d1 !important;
+}
+
+html.dark nav a:hover {
+  color: #fbbf24 !important;
+}
+
+html.dark nav .text-red-600\/80,
+html.dark nav .text-red-700 {
+  color: #f87171 !important;
+}
+
+html.dark nav .text-red-600\/80:hover,
+html.dark nav .text-red-700:hover {
+  color: #fca5a5 !important;
+}
+
+/* Navbar logo text */
+html.dark nav span.text-emerald-950 {
+  color: #fbbf24 !important;
+}
+
+/* Dark mode borders */
+html.dark .border-stone-100 {
+  border-color: #292524 !important;
+}
+
+html.dark .border-stone-200 {
+  border-color: #3a3633 !important;
+}
+
+html.dark .border-rose-100 {
+  border-color: #4a2020 !important;
+}
+
+html.dark .shadow-stone-200\/50 {
+  --tw-shadow-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Dark mode inputs */
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #1a1a1a !important;
+  border-color: #3a3633 !important;
+  color: #e7e5e4 !important;
+}
+
+html.dark input::placeholder {
+  color: #78716c !important;
+}
+
+html.dark input:disabled {
+  background-color: #0f0f0f !important;
+  color: #78716c !important;
+}
+
+/* Dark mode scrollbar */
+html.dark ::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #44403c;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #57534e;
+}
+
+/* Dark mode buttons - outline variant */
+html.dark button.border-stone-200,
+html.dark .border-stone-300 {
+  border-color: #44403c !important;
+  color: #d6d3d1 !important;
+}
+
+html.dark button.border-stone-200:hover,
+html.dark .border-stone-300:hover {
+  background-color: #292524 !important;
+  border-color: #57534e !important;
+}
+
+/* Hero section and upload box */
+html.dark .bg-white\/60,
+html.dark .bg-white\/80 {
+  background-color: rgba(26, 26, 26, 0.8) !important;
+}
+
+html.dark .bg-white\/90 {
+  background-color: rgba(26, 26, 26, 0.95) !important;
+}
+
+/* Cards and panels */
+html.dark .rounded-3xl,
+html.dark .rounded-\[2\.5rem\],
+html.dark .rounded-\[2rem\],
+html.dark .rounded-\[3rem\] {
+  background-color: #1a1a1a;
+  border-color: #292524;
+}
+
+/* Glass effects in dark mode */
+html.dark .glass {
+  background: rgba(26, 26, 26, 0.8) !important;
+  border-color: rgba(68, 64, 60, 0.3) !important;
+}
+
+html.dark .glass-dark {
+  background: rgba(2, 44, 34, 0.95) !important;
+}
+
+/* Font serif titles */
+html.dark .font-serif {
+  color: #fef3c7;
+}
+
+/* Gradient text fix */
+html.dark .text-gradient-gold {
+  background: linear-gradient(135deg,
+      var(--color-amber-400) 0%,
+      var(--color-amber-200) 50%,
+      var(--color-amber-500) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Dashboard book cards */
+html.dark .aspect-\[4\/3\] {
+  background-color: #292524 !important;
+}
+
+/* Footer */
+html.dark footer {
+  background-color: #0a0a0a !important;
+  color: #a8a29e !important;
+}
+
+html.dark footer a {
+  color: #d6d3d1 !important;
+}
+
+html.dark footer a:hover {
+  color: #fbbf24 !important;
+}
+
+/* Memory Jar and other section backgrounds */
+html.dark .bg-emerald-950 {
+  background-color: #022c22 !important;
+}
+
+html.dark .min-h-screen.bg-emerald-950 {
+  background-color: #0a1a14 !important;
+}
+
+/* Labels and form elements */
+html.dark label {
+  color: #a8a29e !important;
+}
+
+html.dark .text-\[10px\] {
+  color: #78716c !important;
+}
+
+/* Italics and helper text */
+html.dark .italic {
+  color: #78716c !important;
+}
+
+/* Focus states for inputs */
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2) !important;
+}
+
+/* All link text in dark mode */
+html.dark a.text-emerald-700,
+html.dark a.text-amber-600 {
+  color: #fbbf24 !important;
+}
+
+/* Hover states */
+html.dark .hover\:bg-stone-50:hover {
+  background-color: #292524 !important;
+}
+
+html.dark .hover\:text-emerald-950:hover {
+  color: #fef3c7 !important;
+}
+
+/* Text with opacity */
+html.dark .text-stone-300 {
+  color: #d6d3d1 !important;
+}
+
+/* Memory jar month cards */
+html.dark .bg-gradient-to-br {
+  background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%) !important;
+}
+
+/* Loader and spinner colors */
+html.dark .text-emerald-900.animate-spin,
+html.dark .animate-spin.text-emerald-900 {
+  color: #fbbf24 !important;
+}
+
+/* Modals and overlays */
+html.dark .backdrop-blur-sm {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Empty state text */
+html.dark p.text-stone-400,
+html.dark p.text-stone-500 {
+  color: #a8a29e !important;
+}
+
+/* Primary button text in dark mode remains visible */
+html.dark .bg-emerald-950 button,
+html.dark button.bg-emerald-950 {
+  color: #fef3c7 !important;
+}
+
+/* ================================
+   Hero Section & Major Headings
+   ================================ */
+
+/* Hero h1 titles */
+html.dark h1 {
+  color: #fef3c7 !important;
+}
+
+html.dark h1.text-emerald-950 {
+  color: #fef3c7 !important;
+}
+
+/* Section headings */
+html.dark h2 {
+  color: #e7e5e4 !important;
+}
+
+html.dark h2.text-emerald-950 {
+  color: #fef3c7 !important;
+}
+
+html.dark h3 {
+  color: #e7e5e4 !important;
+}
+
+html.dark h4 {
+  color: #d6d3d1 !important;
+}
+
+/* Amber accent text */
+html.dark .text-amber-600 {
+  color: #fbbf24 !important;
+}
+
+html.dark .text-amber-800 {
+  color: #fcd34d !important;
+}
+
+html.dark .text-amber-500 {
+  color: #f59e0b !important;
+}
+
+/* Italic accent text in hero */
+html.dark h1 .italic,
+html.dark .italic.text-amber-600 {
+  color: #fbbf24 !important;
+}
+
+/* Pricing cards text */
+html.dark .text-emerald-200 {
+  color: #a7f3d0 !important;
+}
+
+html.dark .text-emerald-100 {
+  color: #d1fae5 !important;
+}
+
+/* How it works section icons */
+html.dark .text-emerald-900 {
+  color: #10b981 !important;
+}
+
+/* Amber background elements */
+html.dark .bg-amber-200\/20 {
+  background-color: rgba(251, 191, 36, 0.1) !important;
+}
+
+/* Feature cards icon container */
+html.dark .bg-stone-50.text-emerald-900 {
+  background-color: #1a1a1a !important;
+  color: #10b981 !important;
+}
+
+/* Social proof section */
+html.dark span.text-emerald-950 {
+  color: #fef3c7 !important;
+}
+
+/* Small uppercase labels */
+html.dark .tracking-wider.uppercase {
+  color: #fbbf24 !important;
+}
+
+/* Heirloom edition card in dark mode */
+html.dark .from-amber-50.to-amber-100 {
+  background: linear-gradient(135deg, #3d2e0a 0%, #4a3b10 100%) !important;
+}
+
+/* Memory Jar page background gradient */
+html.dark .bg-gradient-to-b.from-amber-50.to-stone-50 {
+  background: linear-gradient(180deg, #1a1510 0%, #121212 100%) !important;
+}
+
+/* Memory Jar month grid cards */
+html.dark .bg-stone-100 {
+  background-color: #292524 !important;
+}
+
+html.dark .bg-amber-50 {
+  background-color: #3d2e0a !important;
+}
+
+html.dark .border-amber-300 {
+  border-color: #fbbf24 !important;
+}
+
+/* Month card empty states */
+html.dark .text-stone-400 {
+  color: #78716c !important;
+}
+
+/* White prompt card in dark mode */
+html.dark .bg-white.rounded-\[2rem\] {
+  background-color: #1a1a1a !important;
+  border-color: #3a3633 !important;
+}
+
+/* Modal in dark mode */
+html.dark .bg-white.rounded-\[2rem\].shadow-2xl {
+  background-color: #1a1a1a !important;
+}
+
+html.dark .bg-emerald-950\/80 {
+  background-color: rgba(10, 20, 15, 0.9) !important;
+}
+
+/* Upload area styling */
+html.dark .bg-stone-100.border-2 {
+  background-color: #292524 !important;
+}
+
+html.dark .hover\:border-amber-300:hover {
+  border-color: #fbbf24 !important;
+}
+
+html.dark .hover\:bg-amber-50\/50:hover {
+  background-color: rgba(61, 46, 10, 0.5) !important;
+}
+
+/* Emerald backgrounds */
+html.dark .bg-emerald-100 {
+  background-color: #064e3b !important;
+}
+
+html.dark .text-emerald-600 {
+  color: #34d399 !important;
 }
 
 /* Premium Scrollbar */
