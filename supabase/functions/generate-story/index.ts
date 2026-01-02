@@ -116,7 +116,9 @@ serve(async (req: Request) => {
     if (!ANTHROPIC_API_KEY) {
       console.warn("ANTHROPIC_API_KEY not configured, returning demo story");
       return new Response(
-        JSON.stringify(generateDemoStory(body.childName, body.theme)),
+        JSON.stringify(
+          generateDemoStory(body.childName, body.theme, pageCount)
+        ),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 200,
@@ -187,7 +189,7 @@ Return ONLY the JSON object, no other text.`;
       }
     } catch {
       console.error("Failed to parse Claude response:", content);
-      story = generateDemoStory(body.childName, body.theme);
+      story = generateDemoStory(body.childName, body.theme, pageCount);
     }
 
     console.log(`✅ Generated ${story.pages.length} pages`);
@@ -208,7 +210,11 @@ Return ONLY the JSON object, no other text.`;
 /**
  * Generate a demo story when API key is not configured
  */
-function generateDemoStory(childName: string, theme: string): GeneratedStory {
+function generateDemoStory(
+  childName: string,
+  theme: string,
+  pageCount: number = 6
+): GeneratedStory {
   const themeAdj =
     theme === "space"
       ? "starlit"
@@ -216,32 +222,38 @@ function generateDemoStory(childName: string, theme: string): GeneratedStory {
       ? "verdant"
       : "enchanted";
 
-  return {
-    pages: [
-      {
-        text: `Once upon a time, ${childName} looked up at the sky and saw a shimmering door made of light.`,
-        imagePrompt: `A young child with wonder in their eyes looking at a magical glowing doorway in the sky, ${themeAdj} setting, hand-painted oil illustration, whimsical, magical lighting, studio ghibli inspired`,
-      },
-      {
-        text: `With a deep breath and a brave heart, ${childName} stepped through into a world of pure wonder.`,
-        imagePrompt: `A child stepping through a magical portal into a ${themeAdj} landscape, swirling colors, hand-painted oil illustration, whimsical, magical lighting`,
-      },
-      {
-        text: `In this place, the trees whispered secrets and the clouds tasted like sweet vanilla cream.`,
-        imagePrompt: `Whimsical landscape with talking trees and fluffy cotton-candy clouds, magical forest, hand-painted oil illustration, dreamy atmosphere`,
-      },
-      {
-        text: `But ${childName} soon met a tiny friend who needed help finding their way home.`,
-        imagePrompt: `A child kneeling down to help a small magical creature, friendly expression, ${themeAdj} forest background, hand-painted oil illustration`,
-      },
-      {
-        text: `By working together, they discovered that even the smallest act of kindness can change the world.`,
-        imagePrompt: `A child and a small magical creature sharing a warm moment of friendship, golden light, hand-painted oil illustration, heartwarming scene`,
-      },
-      {
-        text: `And so, ${childName} returned home, knowing that magic lives in every brave and kind heart.`,
-        imagePrompt: `A child back at home, glowing with a soft magical light, peaceful bedroom, stars visible through window, hand-painted oil illustration`,
-      },
-    ],
-  };
+  const allPages = [
+    {
+      text: `Once upon a time, ${childName} looked up at the sky and saw a shimmering door made of light.`,
+      imagePrompt: `A young child with wonder in their eyes looking at a magical glowing doorway in the sky, ${themeAdj} setting, hand-painted oil illustration, whimsical, magical lighting, studio ghibli inspired`,
+    },
+    {
+      text: `With a deep breath and a brave heart, ${childName} stepped through into a world of pure wonder.`,
+      imagePrompt: `A child stepping through a magical portal into a ${themeAdj} landscape, swirling colors, hand-painted oil illustration, whimsical, magical lighting`,
+    },
+    {
+      text: `In this place, the trees whispered secrets and the clouds tasted like sweet vanilla cream.`,
+      imagePrompt: `Whimsical landscape with talking trees and fluffy cotton-candy clouds, magical forest, hand-painted oil illustration, dreamy atmosphere`,
+    },
+    {
+      text: `But ${childName} soon met a tiny friend who needed help finding their way home.`,
+      imagePrompt: `A child kneeling down to help a small magical creature, friendly expression, ${themeAdj} forest background, hand-painted oil illustration`,
+    },
+    {
+      text: `By working together, they discovered that even the smallest act of kindness can change the world.`,
+      imagePrompt: `A child and a small magical creature sharing a warm moment of friendship, golden light, hand-painted oil illustration, heartwarming scene`,
+    },
+    {
+      text: `And so, ${childName} returned home, knowing that magic lives in every brave and kind heart.`,
+      imagePrompt: `A child back at home, glowing with a soft magical light, peaceful bedroom, stars visible through window, hand-painted oil illustration`,
+    },
+  ];
+
+  // Trim or expand pages to match pageCount exactly
+  const pages = [];
+  for (let i = 0; i < pageCount; i++) {
+    pages.push(allPages[i % allPages.length]);
+  }
+
+  return { pages };
 }
