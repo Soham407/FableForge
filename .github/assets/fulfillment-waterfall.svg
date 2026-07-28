@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="280" viewBox="0 0 1200 280" role="img" aria-labelledby="waterfall-title waterfall-desc">
+  <title id="waterfall-title">FableForge Waterfall Print Fulfillment &amp; Tier Model</title>
+  <desc id="waterfall-desc">Diagram showing Digital, Standard Gelato, and Heirloom Bookvault product tiers and fulfillment routing.</desc>
+
+  <defs>
+    <linearGradient id="wf-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c0a09"/>
+      <stop offset="100%" stop-color="#1c1917"/>
+    </linearGradient>
+    <linearGradient id="gold-grad-wf" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="50%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="1200" height="280" rx="20" fill="url(#wf-bg)"/>
+  <rect width="1198" height="278" x="1" y="1" rx="19" fill="none" stroke="url(#gold-grad-wf)" stroke-width="1.5" stroke-opacity="0.3"/>
+
+  <!-- Title -->
+  <g transform="translate(56, 34)">
+    <text x="0" y="22" font-family="Georgia, serif" font-size="20" font-weight="700" fill="#f5f5f4">Product Tiers &amp; "Waterfall" Logistics Routing</text>
+    <text x="0" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#a8a29e">Dynamic routing engine selects optimum fulfillment partner based on binding tier &amp; geographic region.</text>
+  </g>
+
+  <!-- 3 Tier Cards -->
+
+  <!-- Tier 1: Digital Preview & PDF -->
+  <g transform="translate(56, 90)">
+    <rect width="340" height="152" rx="12" fill="#1c1917" stroke="#38bdf8" stroke-width="1"/>
+    <rect width="340" height="32" rx="12" fill="#0369a1"/>
+    <text x="16" y="21" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" fill="#ffffff">DIGITAL EDITION • FREE / PREVIEW</text>
+    
+    <text x="16" y="58" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#f5f5f4">Instant 3D Flipbook &amp; PDF Download</text>
+    <text x="16" y="78" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#a8a29e">• Zero-shot AI photo transformation in &lt;15s</text>
+    <text x="16" y="96" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#a8a29e">• Interactive WebGL page-turning engine</text>
+    <text x="16" y="114" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#a8a29e">• High-res print-ready PDF export</text>
+    <text x="16" y="136" font-family="ui-monospace, monospace" font-size="10" font-weight="600" fill="#38bdf8">Fulfillment: Instant S3 CDN Download</text>
+  </g>
+
+  <!-- Tier 2: Standard Gelato -->
+  <g transform="translate(430, 90)">
+    <rect width="340" height="152" rx="12" fill="#1c1917" stroke="#10b981" stroke-width="1"/>
+    <rect width="340" height="32" rx="12" fill="#047857"/>
+    <text x="16" y="21" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" fill="#ffffff">STANDARD HARDCOVER • $45.00</text>
+    
+    <text x="16" y="58" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#f5f5f4">Global Local Production (Gelato API)</text>
+    <text x="16" y="78" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#a8a29e">• Premium hardcover case binding</text>
+    <text x="16" y="96" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#a8a29e">• Auto-routed to 130+ print hubs worldwide</text>
+    <text x="16" y="114" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#a8a29e">• Reduced carbon footprint &amp; fast delivery</text>
+    <text x="16" y="136" font-family="ui-monospace, monospace" font-size="10" font-weight="600" fill="#34d399">Fulfillment: Gelato Print API</text>
+  </g>
+
+  <!-- Tier 3: Heirloom Bookvault -->
+  <g transform="translate(804, 90)">
+    <rect width="340" height="152" rx="12" fill="#1c1917" stroke="url(#gold-grad-wf)" stroke-width="1.5"/>
+    <rect width="340" height="32" rx="12" fill="#78350f"/>
+    <text x="16" y="21" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" fill="#fde68a">HEIRLOOM LUXURY • $120.00 – $200.00</text>
+    
+    <text x="16" y="58" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#fde68a">Boutique Foil Printing (Bookvault API)</text>
+    <text x="16" y="78" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#a8a29e">• Real cloth/leather binding &amp; gold foil die</text>
+    <text x="16" y="96" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#a8a29e">• Automated pdf-lib vector foil mask generation</text>
+    <text x="16" y="114" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#a8a29e">• Luxury gift box &amp; ~70% gross profit margin</text>
+    <text x="16" y="136" font-family="ui-monospace, monospace" font-size="10" font-weight="600" fill="#fbbf24">Fulfillment: Bookvault API + Foil Mask</text>
+  </g>
+</svg>
