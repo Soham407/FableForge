@@ -1,162 +1,213 @@
-# FableForge (Our Story Books)
+<p align="center">
+  <img src="./.github/assets/hero.svg" width="100%" alt="FableForge - AI-Powered Heirloom Storybook Platform">
+</p>
 
-Transform family photos into magical, heirloom-quality storybooks using AI.
+<p align="center">
+  <strong>Transforming family photos into magical, heirloom-quality storybooks using zero-shot AI identity engine and physical gold-foil print fulfillment.</strong>
+</p>
 
-## Project Overview
+<p align="center">
+  <a href="#quick-start"><strong>Quick Start</strong></a> •
+  <a href="#system-architecture"><strong>Architecture</strong></a> •
+  <a href="#key-features"><strong>Features</strong></a> •
+  <a href="#print-fulfillment--unit-economics"><strong>Logistics</strong></a> •
+  <a href="#development"><strong>Development</strong></a>
+</p>
 
-FableForge is a "tradition-as-a-service" platform that allows users to upload a photo of their child and instantly see them transformed into the hero of an AI-illustrated storybook. The platform aims to bridge the gap between digital rapidity and physical heirlooms.
+---
 
-## Tech Stack
+## Overview
 
-- **Frontend:** React 18, TypeScript, Vite
-- **Styling:** Tailwind CSS (v4), Framer Motion for animations
-- **Routing:** React Router DOM
-- **Backend:** Supabase (Auth, Database, Storage, Edge Functions)
-- **Payments:** Stripe (Checkout, Webhooks)
-- **AI Integration:**
-  - Anthropic Claude 3.5 Sonnet (Narrative Director)
-  - Fal.ai Flux.1 (Digital Twin Engine - Image Generation)
-- **Print Fulfillment:**
-  - Gelato API (Standard tier - global local printing)
-  - Bookvault API (Premium/Heirloom - specialty printing with foil)
-- **Deployment:** Vercel / Netlify (Ready)
+**FableForge (Our Story Books)** is a *"tradition-as-a-service"* platform designed to bridge the gap between digital rapidity and physical heirlooms. By uploading a single photo of a child, parents and grandparents can instantly generate a customized, AI-illustrated hardcover storybook starring their child.
 
-## Features
+The system combines zero-shot face identity preservation, Claude 3.5 Sonnet narrative scripting, an interactive WebGL 3D flipbook preview, and an automated dual-tier print fulfillment routing pipeline.
+
+---
+
+## System Architecture
+
+<p align="center">
+  <img src="./.github/assets/architecture-pipeline.svg" width="100%" alt="FableForge System Architecture and AI Generation Pipeline">
+</p>
+
+### Pipeline Breakdown
+
+1. **Storefront & 3D Preview (`src/components/`, `src/pages/`)**
+   - Built with **React 18**, **TypeScript**, **Vite**, **Tailwind CSS (v4)**, and **Framer Motion**.
+   - Custom WebGL 3D book canvas powered by `react-three-fiber` with real-time page-turning physics and gold foil shader effects (`Book3DPreview.tsx`).
+   - Integrated **B2B Photographer Portal** for studios to manage client sessions and earn 20% automated commissions.
+
+2. **AI Generation Core (`src/lib/narrative.ts`, `src/lib/imageGen.ts`)**
+   - **Narrative Director:** **Anthropic Claude 3.5 Sonnet** generates structured multi-page story scripts with tailored moral lessons.
+   - **Digital Twin Engine:** **Fal.ai Flux.1 [dev]** paired with **PuLID** for zero-shot facial identity preservation without lengthy model training.
+   - **Face Detailer:** Automatic eye, facial symmetry, and expression restoration via MediaPipe/YOLO pipelines.
+   - **Memory Jar Vector Search:** Supabase `pgvector` embeddings enable long-term narrative consistency across annual storybook collections.
+
+3. **Backend & Merchant Engine (`supabase/`)**
+   - **Supabase BaaS:** Auth, PostgreSQL schema with RLS, Storage buckets, and input sanitization.
+   - **Merchant of Record:** Integrated **Lemon Squeezy** & **Stripe** webhooks deployed as Supabase Edge Functions (`supabase/functions/lemonsqueezy-webhook`).
+
+4. **Pre-Press & Print Fulfillment (`src/lib/pdfGenerator.ts`, `src/lib/fulfillment.ts`)**
+   - **Pre-Press PDF Engine:** Serverless `pdf-lib` pipeline compiling CMYK `interior.pdf` files along with vector black `cover_foil_mask.pdf` files for physical hot-foil die stamping.
+
+---
+
+## Print Fulfillment & Unit Economics
+
+FableForge uses a **"Waterfall" logistics routing model** to balance delivery speed, global availability, and luxury quality.
+
+<p align="center">
+  <img src="./.github/assets/fulfillment-waterfall.svg" width="100%" alt="FableForge Waterfall Print Fulfillment Tiers">
+</p>
+
+### Tier Matrix
+
+| Tier | Price Point | Binding & Finish | Fulfillment Partner | Target Audience |
+| :--- | :--- | :--- | :--- | :--- |
+| **Digital Edition** | **Free / Included** | WebGL 3D Flipbook & High-Res PDF | Supabase S3 Storage | Instant Web Preview |
+| **Standard Hardcover** | **$45.00** | Matte Hardcover Case Binding | **Gelato API** (130+ local print hubs) | Everyday Gifts & Fast Shipping |
+| **Heirloom Luxury** | **$120.00 – $200.00** | Cloth/Leather Binding + Hot Gold Foil Stamping | **Bookvault API** (Specialty Pre-Press) | Heritage Gifts & Legacy Keepsakes |
+
+> **Unit Economics (Heirloom Edition):** At a **$200.00** retail price, COGS breakdown includes ~$40.00 (Bookvault leather binding & foil blocking), ~$5.00 (Flux.1 GPU compute), and ~$15.00 (Packaging/Shipping), yielding a **~$140.00 Gross Profit (~70% Margin)**.
+
+---
+
+## Key Features
 
 ### Phase 1: Proof of Magic ✅
-
-- **Instant Magic Preview:** Zero-shot AI transformation of uploaded photos.
-- **Interactive Story Director:** Wizard to configure child's name, theme, and life lesson.
-- **3D Flipbook Editor:** Realistic page-turning experience to preview the final book.
-- **Heirloom Design System:** Premium UI with gold foil effects and luxury aesthetics.
+- **Instant Magic Preview:** Zero-shot AI photo transformation.
+- **Interactive Story Director:** Configuration wizard for child name, theme, and life lesson.
+- **3D Flipbook Editor:** Page-turning preview environment.
+- **Heirloom Design System:** Gold foil UI visual tokens and dark stone aesthetics.
 
 ### Phase 2: The Luxury Upgrade ✅
-
-- **User Authentication:** Sign up, login, and protected routes via Supabase Auth.
-- **My Magic Library:** Dashboard to view and manage saved storybooks.
-- **Persistence Engine:** Stories saved to the database for logged-in users.
-- **Narrative Director AI:** Integration with Claude 3.5 Sonnet for AI-generated story scripts.
-- **Premium Checkout:** Tier selection (Digital, Hardcover, Heirloom) with order confirmation.
-- **Input Sanitization:** Security hardening for user inputs.
+- **User Authentication:** Supabase Auth with protected routes and persistent user sessions.
+- **My Magic Library:** Dashboard for saving and managing created storybooks.
+- **Claude 3.5 Narrative Director:** Automated story script synthesis.
+- **Multi-Tier Checkout:** Tier selection (Digital, Hardcover, Heirloom) with security input sanitization.
 
 ### Phase 3: The Tradition Ecosystem ✅
-
-- **Memory Jar:** Year-round photo collection with monthly prompts.
-- **Digital Twin Engine:** AI image generation using Fal.ai Flux.1.
-- **B2B Photographer Portal:** Partner dashboard for studios to upsell storybooks.
-- **Annual Storybook Creation:** Transform 12 months of memories into a cohesive story.
+- **Memory Jar:** Year-round photo collection with monthly prompts for annual memory books.
+- **Digital Twin Engine:** Fal.ai Flux.1 image generation pipeline.
+- **B2B Photographer Portal:** Studio partner dashboard with automated 20% revenue share.
 
 ### Phase 4: The Publisher ✅
-
-- **Lemon Squeezy Integration:** Merchant of Record handling global payments, taxes, and compliance.
-- **Multi-step Checkout:** Tier selection → Shipping → Payment flow.
-- **PDF Generation Service:** Print-ready PDFs with foil masks for Heirloom tier.
-- **Print Fulfillment:** Gelato (Standard) and Bookvault (Premium/Heirloom) API integration.
-- **Supabase Edge Functions:** Secure backend for payment webhooks and order processing.
-- **Order Tracking:** Status updates and PDF download for digital orders.
-- **20% Photographer Commission:** Automated revenue sharing for B2B partners.
+- **Lemon Squeezy Integration:** Merchant of Record handling global tax, checkout, and webhooks.
+- **PDF Pre-Press Engine:** Automated CMYK PDF and vector gold foil mask generation.
+- **Automated Fulfillment:** Gelato & Bookvault print API routing.
+- **Order Tracking:** Real-time order status tracking and digital PDF downloads.
 
 ### Phase 5: Advanced Features ✅
+- **PuLID Identity Preservation:** High-fidelity facial consistency via Flux.1 dev + PuLID.
+- **FaceDetailer:** Automatic eye restoration and expression polishing.
+- **WebGL Gold Foil Shader:** `react-three-fiber` WebGL shader for realistic foil reflections.
+- **Vector Database (RAG):** `pgvector` embedding storage for Memory Jar narrative consistency.
 
-- **PuLID Identity Preservation:** High-fidelity face consistency using Flux.1 dev + PuLID.
-- **FaceDetailer:** Automatic eye and expression fixing for AI-generated images.
-- **3D Book Preview:** react-three-fiber powered WebGL book with gold foil shader.
-- **Vector Database (RAG):** pgvector embeddings for Memory Jar narrative consistency.
-- **Real PDF Generation:** Supabase Edge Function using pdf-lib for print-ready files.
+---
 
 ## Development
 
-1. **Install Dependencies:**
+### 1. Installation
 
-   ```bash
-   npm install
-   ```
-
-2. **Configure Environment:**
-   Create a `.env` file with your keys:
-
-   ```
-   # Supabase
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-
-   # AI Services (optional - falls back to simulation)
-   VITE_ANTHROPIC_API_KEY=your_anthropic_key
-   VITE_FAL_API_KEY=your_fal_api_key
-
-   # Payments - Lemon Squeezy (optional - falls back to simulation)
-   VITE_LEMONSQUEEZY_API_KEY=your_lemonsqueezy_api_key
-   VITE_LEMONSQUEEZY_STORE_ID=your_store_id
-   VITE_LS_VARIANT_STANDARD=your_digital_variant_id
-   VITE_LS_VARIANT_PREMIUM=your_hardcover_variant_id
-   VITE_LS_VARIANT_HEIRLOOM=your_heirloom_variant_id
-
-   # Print Fulfillment (optional - falls back to simulation)
-   VITE_GELATO_API_KEY=your_gelato_key
-   VITE_BOOKVAULT_API_KEY=your_bookvault_key
-   ```
-
-3. **Apply Database Migrations:**
-
-   - Run `/supabase/migrations/initial_schema.sql` for Phase 2
-   - Run `/supabase/migrations/phase3_memory_jar.sql` for Phase 3
-   - Run `/supabase/migrations/phase4_photographer_portal.sql` for Phase 4
-   - Run `/supabase/migrations/phase5_vector_db.sql` for Phase 5 (requires pgvector)
-
-4. **Deploy Edge Functions:**
-
-   ```bash
-   # Payment processing (Lemon Squeezy)
-   supabase functions deploy lemonsqueezy-webhook
-
-   # AI services
-   supabase functions deploy generate-story
-   supabase functions deploy generate-image
-
-   # PDF generation
-   supabase functions deploy generate-pdf
-   ```
-
-5. **Run Development Server:**
-
-   ```bash
-   npm run dev
-   ```
-
-6. **Build:**
-   ```bash
-   npm run build
-   ```
-
-## Masterplan Status
-
-- [x] Phase 1 MVP: "Proof of Magic" (Digital Flipbook)
-- [x] Phase 2: "The Luxury Upgrade" (User Accounts, Dashboard, AI Narrative)
-- [x] Phase 3: "The Tradition Ecosystem" (Memory Jar, B2B Photographer Portal)
-- [x] Phase 4: "The Publisher" (Lemon Squeezy Payments, PDF Generation, Print Fulfillment)
-- [x] Phase 5: "Advanced Features" (PuLID, FaceDetailer, 3D Preview, Vector DB)
-
-## Architecture
-
+```bash
+git clone https://github.com/your-org/FableForge.git
+cd FableForge
+npm install
 ```
-src/
-├── components/     # UI components (auth, features, layout, ui)
-├── context/        # React contexts (AuthContext)
-├── data/           # Static data (sample stories)
-├── lib/            # Service integrations
-│   ├── supabase.ts      # Database client
-│   ├── narrative.ts     # AI story generation
-│   ├── imageGen.ts      # AI image generation
-│   ├── stripe.ts        # Payment processing
-│   ├── pdfGenerator.ts  # PDF creation
-│   └── fulfillment.ts   # Print API integration
-├── pages/          # Route components
-└── types/          # TypeScript definitions
 
-supabase/
-├── migrations/     # Database schema
-└── functions/      # Edge Functions (Stripe webhooks)
+### 2. Environment Configuration
+
+Create a `.env` file in the root directory:
+
+```env
+# Supabase Configuration
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# AI Services (Optional - falls back to simulation mode)
+VITE_ANTHROPIC_API_KEY=your_anthropic_key
+VITE_FAL_API_KEY=your_fal_api_key
+
+# Lemon Squeezy Payments (Optional - falls back to simulation mode)
+VITE_LEMONSQUEEZY_API_KEY=your_lemonsqueezy_api_key
+VITE_LEMONSQUEEZY_STORE_ID=your_store_id
+VITE_LS_VARIANT_STANDARD=your_digital_variant_id
+VITE_LS_VARIANT_PREMIUM=your_hardcover_variant_id
+VITE_LS_VARIANT_HEIRLOOM=your_heirloom_variant_id
+
+# Print Fulfillment (Optional - falls back to simulation mode)
+VITE_GELATO_API_KEY=your_gelato_key
+VITE_BOOKVAULT_API_KEY=your_bookvault_key
 ```
+
+### 3. Database Setup
+
+Execute the migration scripts in order against your Supabase instance:
+
+1. `supabase/migrations/initial_schema.sql` (Phase 2 - Core Schema & Auth)
+2. `supabase/migrations/phase3_memory_jar.sql` (Phase 3 - Memory Jar Schema)
+3. `supabase/migrations/phase4_photographer_portal.sql` (Phase 4 - B2B Photographer Schema)
+4. `supabase/migrations/phase5_vector_db.sql` (Phase 5 - pgvector RAG Schema)
+
+### 4. Deploy Edge Functions
+
+Deploy backend Edge Functions using the Supabase CLI:
+
+```bash
+# Payment Processing Webhooks
+supabase functions deploy lemonsqueezy-webhook
+
+# AI Generation Engine
+supabase functions deploy generate-story
+supabase functions deploy generate-image
+
+# PDF Pre-Press Generation
+supabase functions deploy generate-pdf
+```
+
+### 5. Running & Building
+
+```bash
+# Start local development server
+npm run dev
+
+# Production build
+npm run build
+```
+
+---
+
+## Repository Structure
+
+```text
+FableForge/
+├── .github/
+│   └── assets/              # README visual SVGs and diagrams
+├── src/
+│   ├── components/          # React components
+│   │   ├── auth/            # Auth forms & protected routes
+│   │   ├── features/        # Book3DPreview, MagicUploader, BookPage
+│   │   ├── layout/          # Navbar, Footer, Container
+│   │   └── ui/              # Buttons, Cards, Modal primitives
+│   ├── context/             # React Contexts (AuthContext)
+│   ├── data/                # Sample stories and static data
+│   ├── lib/                 # Service clients & integrations
+│   │   ├── supabase.ts      # Supabase client & queries
+│   │   ├── narrative.ts     # Claude 3.5 Sonnet story prompt engine
+│   │   ├── imageGen.ts      # Fal.ai Flux.1 + PuLID engine
+│   │   ├── stripe.ts        # Payment helper functions
+│   │   ├── pdfGenerator.ts  # Pre-press PDF & foil mask builder
+│   │   └── fulfillment.ts   # Gelato & Bookvault print APIs
+│   ├── pages/               # Application routes
+│   └── types/               # TypeScript interfaces
+├── supabase/
+│   ├── functions/           # Supabase Edge Functions
+│   └── migrations/          # SQL Database schema migrations
+├── masterplan.md            # Product strategy & unit economics
+└── README.md                # Project documentation
+```
+
+---
 
 ## License
 
